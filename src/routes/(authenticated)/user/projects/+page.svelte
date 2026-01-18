@@ -2,7 +2,7 @@
 	import { pocketbase } from '$lib/pocketbase/pocketbase';
 	import { createQuery } from '@tanstack/svelte-query';
 	import type { RecordModel } from 'pocketbase';
-	import Project from './(components)/project.svelte';
+	import ProjectCardForProjectsLanding from './(components)/ProjectCardForProjectsLanding.svelte';
 	import { Button, Dialog } from 'bits-ui';
 	import { Loader } from '@lucide/svelte';
 
@@ -58,7 +58,11 @@
 	{:else}
 		<div class="grid w-full max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 			{#each query.data as project}
-				<Project {project} {query} handleButtonOk={() => enterProject(project.id)} />
+				<ProjectCardForProjectsLanding
+					{project}
+					{query}
+					handleButtonOk={() => enterProject(project.id)}
+				/>
 			{/each}
 		</div>
 	{/if}
@@ -80,9 +84,7 @@
 			<Dialog.Content
 				class="rounded-card-lg bg-background shadow-popover fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 p-6"
 			>
-				<Dialog.Title class="mb-2 text-lg font-semibold"
-					>Editar nombre del proyecto</Dialog.Title
-				>
+				<Dialog.Title class="mb-2 text-lg font-semibold">Editar nombre del proyecto</Dialog.Title>
 				<Dialog.Description class="text-muted-foreground mb-4"
 					>Cambia el nombre y guarda para actualizar.</Dialog.Description
 				>
@@ -106,7 +108,7 @@
 						Crear
 					</Button.Root>
 					<Dialog.Close
-						class="bg-destructive text-white rounded-input cursor-pointer px-4 py-2 font-medium"						
+						class="bg-destructive rounded-input cursor-pointer px-4 py-2 font-medium text-white"
 					>
 						Cancelar
 					</Dialog.Close>

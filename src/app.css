@@ -38,6 +38,7 @@
 	--destructive: hsl(347 77% 50%);
 	--tertiary: hsl(37.7 92.1% 50.2%);
 	--line: hsl(0 0% 100%);
+	--success: hsl(142, 48%, 30%);
  
 	/* black */
 	--contrast: hsl(0 0% 0%);
@@ -107,6 +108,7 @@
 	--color-tertiary: var(--tertiary);
 	--color-line: var(--line);
 	--color-contrast: var(--contrast);
+	--color-success: var(--success);
 	--color-primary:  #0057b8;
 	--color-secondary: #ffc300;
 

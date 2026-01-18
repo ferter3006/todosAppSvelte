@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { Progress, Avatar } from 'bits-ui';
-	import { onMount } from "svelte";
-	import { cubicInOut } from "svelte/easing";
-	import { Tween } from "svelte/motion";
+	import { Progress, Avatar, Button, Select } from 'bits-ui';
+	import { onMount } from 'svelte';
+	import { cubicInOut } from 'svelte/easing';
+	import { Tween } from 'svelte/motion';
 
 	const tween = new Tween(13, { duration: 1000, easing: cubicInOut });
 	const labelId = 'progress-label';
@@ -15,22 +15,25 @@
 	});
 </script>
 
-<div class="flex flex-col items-center justify-center min-h-[70vh] gap-8 p-6">
+<div class="flex min-h-[70vh] flex-col items-center justify-center gap-8 p-6">
 	<Avatar.Root
 		delayMs={200}
-		class="data-[status=loaded]:border-foreground bg-muted text-muted-foreground h-20 w-20 rounded-full border text-[17px] font-medium uppercase data-[status=loading]:border-transparent mb-2"
+		class="data-[status=loaded]:border-foreground bg-muted text-muted-foreground mb-2 h-20 w-20 rounded-full border text-[17px] font-medium uppercase data-[status=loading]:border-transparent"
 	>
-		<div class="flex h-full w-full items-center justify-center overflow-hidden rounded-full border-2 border-transparent">
+		<div
+			class="flex h-full w-full items-center justify-center overflow-hidden rounded-full border-2 border-transparent"
+		>
 			<Avatar.Image src="/src/lib/assets/ferterIcon.png" alt="Logo" />
 			<Avatar.Fallback class="border-muted border">FT</Avatar.Fallback>
 		</div>
 	</Avatar.Root>
-	<h1 class="text-3xl font-bold text-primary mb-2">Ferter TO-DOs</h1>
-	<p class="text-lg text-muted-foreground max-w-xl text-center mb-4">
-		Organiza tus proyectos, tareas y notas en un solo lugar. Gestiona tu productividad y mantén el control de tus objetivos diarios y de equipo.
+	<h1 class="text-primary mb-2 text-3xl font-bold">Ferter TO-DOs</h1>
+	<p class="text-muted-foreground mb-4 max-w-xl text-center text-lg">
+		Organiza tus proyectos, tareas y notas en un solo lugar. Gestiona tu productividad y mantén el
+		control de tus objetivos diarios y de equipo.
 	</p>
-	
-	<div class="flex w-[25%] flex-col gap-2 mt-6">
+
+	<div class="mt-6 flex w-[25%] flex-col gap-2">
 		<div class="flex items-center justify-between text-sm font-medium">
 			<span id={labelId}> Progreso de ejemplo </span>
 			<span>{Math.round(tween.current)}%</span>
