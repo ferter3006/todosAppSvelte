@@ -21,10 +21,6 @@
 			})
 	}));
 
-	$effect(() => {
-		console.log('Project Data:', queryProject.data);
-	});
-
 	async function createTodo() {
 		if (!todoTitle || !todoTitle) return;
 		await pocketbase
@@ -48,12 +44,15 @@
 	<p>Cargando proyecto...</p>
 {:else if queryProject.isError}
 	<p>Error al cargar el proyecto: {queryProject.error?.message}</p>
+
 {:else}
 	<div class="m-8 flex flex-col items-center justify-center gap-6">
 		<h1 class="text-3xl font-bold">{queryProject.data?.title}</h1>
-		{#each queryProject.data?.expand?.todos_via_project_id as todo}
-			<Todo {todo} />
-		{/each}
+		<div class="grid w-full gap-6 sm:grid-cols-2 lg:grid-cols-3">
+			{#each queryProject.data?.expand?.todos_via_project_id as todo}
+				<Todo {todo} {queryProject} />
+			{/each}
+		</div>
 		<div id="add-todo-button" class="w-max">
 			<Button.Root
 				class="hover:bg-primary/90 rounded-md bg-black px-5 py-3 font-bold text-white"
@@ -66,8 +65,10 @@
 {/if}
 
 <DialogTodo
-	bind:openDialog
-	bind:todoTitle
-	bind:todoDescription
-	handlesCreateOrUpdate={createTodo}
+	dialogTitle="Crear nueva tarea"
+	dialogDescription="Introduce el título y la descripción de la tarea."
+	bind:openDialog={openDialog}
+	{todoTitle}
+	{todoDescription}
+	handleCreateOrUpdate={createTodo}
 />

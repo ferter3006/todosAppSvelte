@@ -18,6 +18,16 @@ export function AuthWithGoogle() {
 		});
 }
 
+export function AuthWithUserPass(email: string, password: string) {
+	pocketbase
+		.collection('users')
+		.authWithPassword(email, password)
+		.then((authData) => {
+			currentUser.set(authData.record);
+			currentUserToken.set(authData.token);
+		});
+}
+
 export function SignOut() {
 	pocketbase.authStore.clear();
 	currentUser.set(null);

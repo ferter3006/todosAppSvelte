@@ -1,50 +1,57 @@
 <script lang="ts">
-	import { AlertDialog, Avatar, Button } from 'bits-ui';
+	import { AlertDialog, Avatar, Button, Dialog } from 'bits-ui';
 	import Collaborator from './collaborator.svelte';
 	import type { RecordModel } from 'pocketbase';
 	import { pocketbase } from '$lib/pocketbase/pocketbase';
-	import { createQuery } from '@tanstack/svelte-query';
 
 	// declare on:handleButtonOk and on:handleButtonDelete events
 
-	let { project, handleButtonOk, handleButtonDelete } = $props();
-
-	const query = createQuery(() => ({
-		queryKey: ['projects'],
-		queryFn: () =>
-			pocketbase.collection('projects').getFullList({
-				filter: `deleted = null`,
-				expand: 'owner_id,collaborators'
-			})
-	}));
+	let { project, handleButtonOk, query } = $props();
+	let confirmDeleteDialog = $state<boolean>(false);
 
 	let editingProject = $state<RecordModel | null>(null);
+	let deletingProject = $state<RecordModel | null>(null);
 	let newTitle = $state<string>('');
+	let newDescription = $state<string>('');
 	let dialogOpen = $state<boolean>(false);
 	let saving = $state<boolean>(false);
 
 	function openEditDialog(project: RecordModel) {
-		console.log('Editing project:', project);
 		editingProject = project;
 		newTitle = project.title;
+		newDescription = project.description || '';
 		dialogOpen = true;
 	}
 
 	async function handleSave() {
 		saving = true;
 		const title = newTitle.trim();
+		const description = newDescription.trim();
 		if (!title) return;
 		if (!editingProject) return;
-		await pocketbase.collection('projects').update(editingProject.id, { title });
+		await pocketbase.collection('projects').update(editingProject.id, { title, description });
 		editingProject = null;
 		query.refetch();
 		saving = false;
 		dialogOpen = false;
 	}
 
-	function handleCancel() {
+	function handleButtonDelete(project: RecordModel) {
+		deletingProject = project;
+		confirmDeleteDialog = true;
 		editingProject = null;
 		dialogOpen = false;
+	}
+
+	function deleteProjectConfirmed() {
+		if (!deletingProject) return;
+		pocketbase
+			.collection('projects')
+			.update(deletingProject.id, { deleted: new Date().toISOString() })
+			.then(() => {
+				query.refetch();
+				confirmDeleteDialog = false;
+			});
 	}
 </script>
 
@@ -116,22 +123,68 @@
 	</div>
 </div>
 
-<AlertDialog.Root bind:open={dialogOpen}>
-	<AlertDialog.Content>
-		<AlertDialog.Title>Editar proyecto</AlertDialog.Title>
-		<div class="mt-2 flex flex-col gap-4">
-			<label>
-				Nombre:
-				<input class="input" bind:value={editingProject!.title} />
-			</label>
-			<label>
-				Descripción:
-				<textarea class="input" bind:value={editingProject!.description}></textarea>
-			</label>
-		</div>
-		<div class="mt-4 flex justify-end gap-2">
-			<Button.Root onclick={handleCancel} class="bg-muted">Cancelar</Button.Root>
-			<Button.Root onclick={handleSave} class="bg-primary text-white">Guardar</Button.Root>
-		</div>
-	</AlertDialog.Content>
+<!-- Dialogo para editar nombre y descripcion -->
+<Dialog.Root bind:open={dialogOpen}>
+	<Dialog.Portal>
+		<Dialog.Overlay class="fixed inset-0 z-50 bg-black/80" />
+		<Dialog.Content
+			class="rounded-card-lg bg-background shadow-popover fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 p-6"
+		>
+			<Dialog.Title class="mb-2 text-lg font-semibold">Editar nombre del proyecto</Dialog.Title>
+			<Dialog.Description class="text-muted-foreground mb-4"
+				>Cambia el nombre y guarda para actualizar.</Dialog.Description
+			>
+			<input
+				class="rounded-input mb-4 w-full border px-3 py-2 text-base"
+				type="text"
+				bind:value={newTitle}
+				placeholder="Nuevo nombre"
+			/>
+			<textarea
+				class="rounded-input mb-4 w-full border px-3 py-2 text-base"
+				rows="3"
+				bind:value={newDescription}
+				placeholder="Descripción"
+			></textarea>
+			<div class="flex justify-end gap-2">
+				<Button.Root
+					class="bg-primary rounded-input cursor-pointer px-4 py-2 font-semibold text-white"
+					onclick={handleSave}
+					disabled={!editingProject}
+				>
+					Guardar
+				</Button.Root>
+				<Dialog.Close
+					class="bg-destructive text-white rounded-input cursor-pointer px-4 py-2 font-medium"
+					>Cancelar
+				</Dialog.Close>
+			</div>
+		</Dialog.Content>
+	</Dialog.Portal>
+</Dialog.Root>
+
+<AlertDialog.Root bind:open={confirmDeleteDialog}>
+	<AlertDialog.Portal>
+		<AlertDialog.Overlay class="fixed inset-0 z-50 bg-black/80" />
+		<AlertDialog.Content
+			class="rounded-card-lg bg-background shadow-popover fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 p-6"
+		>
+			<AlertDialog.Title class="mb-2 text-lg font-semibold">Confirmar eliminación</AlertDialog.Title
+			>
+			<AlertDialog.Description class="text-muted-foreground mb-4"
+				>¿Estás seguro de que deseas eliminar este proyecto? Esta acción no se puede deshacer.</AlertDialog.Description
+			>
+			<div class="flex justify-end gap-2">
+				<AlertDialog.Cancel class="bg-destructive text-white rounded-input px-4 py-2 font-medium"
+					>Cancelar
+				</AlertDialog.Cancel>
+				<AlertDialog.Action
+					class="bg-destructive rounded-input px-4 py-2 font-semibold text-white"
+					onclick={deleteProjectConfirmed}
+				>
+					Eliminar
+				</AlertDialog.Action>
+			</div>
+		</AlertDialog.Content>
+	</AlertDialog.Portal>
 </AlertDialog.Root>

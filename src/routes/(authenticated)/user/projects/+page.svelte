@@ -1,41 +1,49 @@
 <script lang="ts">
 	import { pocketbase } from '$lib/pocketbase/pocketbase';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { AlertDialog, Avatar, Button, LinkPreview } from 'bits-ui';
 	import type { RecordModel } from 'pocketbase';
-	import Collaborator from './(components)/collaborator.svelte';
 	import Project from './(components)/project.svelte';
+	import { Button, Dialog } from 'bits-ui';
+	import { Loader } from '@lucide/svelte';
 
-	const baseURL = import.meta.env.VITE_POCKETBASE_URL;
-	let editingProject = $state<RecordModel | null>(null);
+	let dialogCreateProject = $state<boolean>(false);
 	let newTitle = $state<string>('');
-	let dialogOpen = $state<boolean>(false);
-	let saving = $state<boolean>(false);
+	let newDescription = $state<string>('');
+	let creating = $state<boolean>(false);
 
 	const query = createQuery(() => ({
 		queryKey: ['projects'],
 		queryFn: () =>
 			pocketbase.collection('projects').getFullList({
 				filter: `deleted = null`,
+				sort: 'created',
 				expand: 'owner_id,collaborators'
 			})
 	}));
-
-	$effect(() => {
-		console.log('Projects Data:', query.data);
-	});
-
-
 
 	function enterProject(projectId: string) {
 		window.location.href = `/user/projects/${projectId}`;
 	}
 
-	async function deleteProject(project: RecordModel) {
-		if (confirm('¿Seguro que quieres borrar este proyecto?')) {
-			await pocketbase.collection('projects').update(project.id, { deleted: new Date().toISOString() });
-			query.refetch();
-		}
+	async function handleCreate() {
+		creating = true;
+		const title = newTitle.trim();
+		const description = newDescription.trim();
+		if (!title) return;
+		await pocketbase
+			.collection('projects')
+			.create({
+				title,
+				description,
+				owner_id: pocketbase.authStore.model?.id
+			})
+			.then(() => {
+				query.refetch();
+			});
+		dialogCreateProject = false;
+		newTitle = '';
+		newDescription = '';
+		creating = false;
 	}
 </script>
 
@@ -50,8 +58,66 @@
 	{:else}
 		<div class="grid w-full max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 			{#each query.data as project}
-				<Project {project} handleButtonOk={() => enterProject(project.id)} handleButtonDelete={() => deleteProject(project)} />
+				<Project {project} {query} handleButtonOk={() => enterProject(project.id)} />
 			{/each}
 		</div>
 	{/if}
+	<!-- Add New Project Button could go here -->
+	<div class="mt-6">
+		<button
+			class="bg-primary hover:bg-primary/90 rounded px-4 py-2 text-white"
+			onclick={() => (dialogCreateProject = true)}
+		>
+			+ Nuevo Proyecto
+		</button>
+	</div>
 </div>
+<!-- Dialog para crear nuevo proyecto  -->
+<Dialog.Root bind:open={dialogCreateProject}>
+	<Dialog.Portal>
+		<Dialog.Overlay class="fixed inset-0 z-50 bg-black/80" />
+		{#if !creating}
+			<Dialog.Content
+				class="rounded-card-lg bg-background shadow-popover fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 p-6"
+			>
+				<Dialog.Title class="mb-2 text-lg font-semibold"
+					>Editar nombre del proyecto</Dialog.Title
+				>
+				<Dialog.Description class="text-muted-foreground mb-4"
+					>Cambia el nombre y guarda para actualizar.</Dialog.Description
+				>
+				<input
+					class="rounded-input mb-4 w-full border px-3 py-2 text-base"
+					type="text"
+					bind:value={newTitle}
+					placeholder="Nuevo nombre"
+				/>
+				<textarea
+					class="rounded-input mb-4 w-full border px-3 py-2 text-base"
+					rows="3"
+					bind:value={newDescription}
+					placeholder="Descripción"
+				></textarea>
+				<div class="flex justify-end gap-2">
+					<Button.Root
+						class="bg-primary  rounded-input cursor-pointer px-4 py-2 font-semibold text-white"
+						onclick={handleCreate}
+					>
+						Crear
+					</Button.Root>
+					<Dialog.Close
+						class="bg-destructive text-white rounded-input cursor-pointer px-4 py-2 font-medium"						
+					>
+						Cancelar
+					</Dialog.Close>
+				</div>
+			</Dialog.Content>
+		{:else}
+			<Dialog.Content
+				class="rounded-card-lg bg-background shadow-popover fixed top-1/2 left-1/2 z-50 flex w-full max-w-md -translate-x-1/2 -translate-y-1/2 flex-col items-center p-6"
+			>
+				<Loader class="text-primary animate-spin" size={48} />
+			</Dialog.Content>
+		{/if}
+	</Dialog.Portal>
+</Dialog.Root>

@@ -1,21 +1,24 @@
 <script lang="ts">
-	import { AlertDialog } from 'bits-ui';
+	import { Button, Dialog } from 'bits-ui';
 
-	export let openDialog: boolean;
-	export let todoTitle: string;
-	export let todoDescription: string;
-	export let handlesCreateOrUpdate: () => void;
+	let {
+		dialogTitle,
+		dialogDescription,
+		openDialog = $bindable(),
+		todoTitle,
+		todoDescription,
+		handleCreateOrUpdate
+	} = $props();
 </script>
 
-<AlertDialog.Root bind:open={openDialog}>
-	<AlertDialog.Portal>
-		<AlertDialog.Overlay class="fixed inset-0 z-50 bg-black/80" />
-		<AlertDialog.Content
-			class="rounded-card-lg bg-background shadow-popover fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 p-6"
+<Dialog.Root bind:open={openDialog}>
+	<Dialog.Portal>
+		<Dialog.Overlay class="fixed inset-0 z-50 bg-black/80" />
+		<Dialog.Content
+			class="rounded-card-lg bg-background shadow-popover fixed top-1/2 left-1/2 z-50 mx-auto w-[90%] -translate-x-1/2 -translate-y-1/2 overflow-y-auto p-4 max-md:max-w-md"
 		>
-			<AlertDialog.Title class="mb-2 text-lg font-semibold">Crear nueva tarea</AlertDialog.Title>
-			<AlertDialog.Description class="text-muted-foreground mb-4"
-				>Introduce el título y la descripción de la tarea.</AlertDialog.Description
+			<Dialog.Title class="mb-2 text-lg font-semibold">{dialogTitle}</Dialog.Title>
+			<Dialog.Description class="text-muted-foreground mb-4">{dialogDescription}</Dialog.Description
 			>
 			<input
 				class="rounded-input mb-2 w-full border px-3 py-2 text-base"
@@ -30,20 +33,18 @@
 				placeholder="Descripción"
 			></textarea>
 			<div class="flex justify-end gap-2">
-				<AlertDialog.Cancel>
-					<button class="bg-muted text-foreground rounded-input px-4 py-2 font-medium"
-						>Cancelar</button
-					>
-				</AlertDialog.Cancel>
-				<AlertDialog.Action>
-					<button
-						class="bg-primary rounded-input px-4 py-2 font-semibold text-white"
-						onclick={handlesCreateOrUpdate}
-					>
-						Crear
-					</button>
-				</AlertDialog.Action>
+				<Button.Root
+					class="bg-primary rounded-input px-4 py-2 font-semibold text-white"
+					onclick={handleCreateOrUpdate}
+				>
+					Crear
+				</Button.Root>
+				<Dialog.Close
+					class="bg-destructive rounded-input px-4 py-2 font-medium text-white"
+					onclick={() => (openDialog = false)}
+					>Cancelar
+				</Dialog.Close>
 			</div>
-		</AlertDialog.Content>
-	</AlertDialog.Portal>
-</AlertDialog.Root>
+		</Dialog.Content>
+	</Dialog.Portal>
+</Dialog.Root>
