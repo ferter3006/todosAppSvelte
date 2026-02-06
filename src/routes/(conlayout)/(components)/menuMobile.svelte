@@ -2,6 +2,7 @@
 	import { DropdownMenu } from 'bits-ui';
 	import { currentUser, SignOut } from '$lib/stores/authStore';
 	import ferterIcon from '$lib/assets/ferterIcon.png';
+
 </script>
 
 <div class="bg-primary flex w-full items-center justify-between p-2 sm:hidden">

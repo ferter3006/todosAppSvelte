@@ -1,10 +1,12 @@
 <script lang="ts">
+	import { pocketbase } from '$lib/pocketbase/pocketbase';
 	import { Progress, Avatar, Button, Select } from 'bits-ui';
 	import { onMount } from 'svelte';
 	import { cubicInOut } from 'svelte/easing';
 	import { Tween } from 'svelte/motion';
 
 	const tween = new Tween(13, { duration: 1000, easing: cubicInOut });
+	const baseURL = import.meta.env.VITE_POCKETBASE_URL;
 	const labelId = 'progress-label';
 
 	onMount(() => {
@@ -13,6 +15,11 @@
 			clearTimeout(timer);
 		};
 	});
+
+	function handlePagar() {
+		console.log(baseURL + '/redsys/pay');
+		window.location.href = `${baseURL}/redsys/pay`;
+	}
 </script>
 
 <div class="flex min-h-[70vh] flex-col items-center justify-center gap-8 p-6">
@@ -50,4 +57,10 @@
 			></div>
 		</Progress.Root>
 	</div>
+	<Button.Root
+		class="hover:bg-primary/90 cursor-pointer rounded-md bg-black px-5 py-3 font-bold text-white"
+		onclick={handlePagar}
+	>
+		Pagar!
+	</Button.Root>
 </div>

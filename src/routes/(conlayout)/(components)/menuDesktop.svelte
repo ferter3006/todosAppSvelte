@@ -1,63 +1,26 @@
 <script lang="ts">
-import avatar from '$lib/assets/avatar.jpg';
-import ferterIcon from '$lib/assets/ferterIcon.png';
-import { Button, NavigationMenu } from 'bits-ui';
-import cn from 'clsx';
-import { ChevronsDown } from '@lucide/svelte';
-import { currentUser, currentUserToken, SignOut } from '$lib/stores/authStore';
-import { onMount } from 'svelte';
+	import avatar from '$lib/assets/avatar.jpg';
+	import { Button, NavigationMenu } from 'bits-ui';
+	import cn from 'clsx';
+	import { ChevronsDown } from '@lucide/svelte';
+	import { currentUser, SignOut } from '$lib/stores/authStore';
+	import { onMount } from 'svelte';
+	
+	let mounted = $state(false);
 
-let mounted = $state(false);
-const components: { title: string; href: string; description: string }[] = [
-	{
-		title: 'Alert Dialog',
-		href: '/docs/components/alert-dialog',
-		description:
-			'A modal dialog that interrupts the user with important content and expects a response.'
-	},
-	{
-		title: 'Link Preview',
-		href: '/docs/components/link-preview',
-		description: 'For sighted users to preview content available behind a link.'
-	},
-	{
-		title: 'Progress',
-		href: '/docs/components/progress',
-		description:
-			'Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.'
-	},
-	{
-		title: 'Scroll Area',
-		href: '/docs/components/scroll-area',
-		description: 'Visually or semantically separates content.'
-	},
-	{
-		title: 'Tabs',
-		href: '/docs/components/tabs',
-		description:
-			'A set of layered sections of content—known as tab panels—that are displayed one at a time.'
-	},
-	{
-		title: 'Tooltip',
-		href: '/docs/components/tooltip',
-		description:
-			'A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.'
-	}
-];
+	type ListItemProps = {
+		className?: string;
+		title: string;
+		href: string;
+		content: string;
+	};
 
-type ListItemProps = {
-	className?: string;
-	title: string;
-	href: string;
-	content: string;
-};
+	onMount(() => {
+		mounted = true;
+	});
 
-onMount(() => {
-	mounted = true;
-});
-
-let classMenuItem =
-	'my-1 mx-0.5 text-white hover:text-accent-foreground focus-visible:bg-muted focus-visible:text-accent-foreground data-[state=open]:shadow-mini dark:hover:bg-muted dark:data-[state=open]:bg-muted group inline-flex h-8 w-max items-center justify-center rounded-[7px] bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-white focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-white data-[state=open]:text-black';
+	let classMenuItem =
+		'my-1 mx-0.5 text-white hover:text-accent-foreground focus-visible:bg-muted focus-visible:text-accent-foreground data-[state=open]:shadow-mini dark:hover:bg-muted dark:data-[state=open]:bg-muted group inline-flex h-8 w-max items-center justify-center rounded-[7px] bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-white focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-white data-[state=open]:text-black';
 </script>
 
 {#snippet ListItem({ className, title, content, href }: ListItemProps)}
@@ -116,37 +79,15 @@ let classMenuItem =
 						content: 'See your current projects'
 					})}
 					{@render ListItem({
-						href: '/user/notes',
-						title: 'Global Notes',
-						content: 'Your global notes and todos'
+						href: '/user/test-area',
+						title: 'Test Area',
+						content: 'Changing page depends on testings'
 					})}
 					{@render ListItem({
 						href: '/user/stats',
 						title: 'Stats',
 						content: 'View your productivity stats'
 					})}
-				</ul>
-			</NavigationMenu.Content>
-		</NavigationMenu.Item>
-		<NavigationMenu.Item>
-			<NavigationMenu.Trigger class={classMenuItem}>
-				Freestyle
-				<ChevronsDown
-					class="relative top-[1px] ml-1 size-3 transition-transform duration-200 group-data-[state=open]:rotate-180"
-					aria-hidden="true"
-				/>
-			</NavigationMenu.Trigger>
-			<NavigationMenu.Content
-				class="data-[motion=from-end]:animate-enter-from-right data-[motion=from-start]:animate-enter-from-left data-[motion=to-end]:animate-exit-to-right data-[motion=to-start]:animate-exit-to-left absolute top-0 left-0 w-full sm:w-auto"
-			>
-				<ul class="grid gap-3 p-3 sm:w-[400px] sm:p-6 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-					{#each components as component (component.title)}
-						{@render ListItem({
-							href: component.href,
-							title: component.title,
-							content: component.description
-						})}
-					{/each}
 				</ul>
 			</NavigationMenu.Content>
 		</NavigationMenu.Item>

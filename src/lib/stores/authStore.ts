@@ -1,7 +1,6 @@
 import { pocketbase } from "$lib/pocketbase/pocketbase";
-import type { AuthCollectionModel, RecordModel } from "pocketbase";
+import type { RecordModel } from "pocketbase";
 import { writable } from "svelte/store";
-
 
 export const currentUser = writable<RecordModel | null>(null);
 export const currentUserToken = writable<string | null>(null);

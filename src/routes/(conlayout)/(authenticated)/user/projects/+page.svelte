@@ -35,7 +35,7 @@
 			.create({
 				title,
 				description,
-				owner_id: pocketbase.authStore.model?.id
+				owner_id: pocketbase.authStore.record?.id
 			})
 			.then(() => {
 				query.refetch();

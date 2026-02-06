@@ -21,18 +21,29 @@
 			})
 	}));
 
+	$effect(() => {
+		pocketbase.collection('projects').subscribe(projectId!, function (e) {
+			console.log('Project updated:', e);
+			queryProject.refetch();
+		});
+	});
+
 	const queryTodos = createQuery(() => ({
 		queryKey: ['todos', projectId],
 		queryFn: () =>
 			pocketbase.collection('todos').getFullList({
-				filter: `project_id = "${projectId}"`,
+				filter: `project_id = "${projectId}" && deleted = null`,
 				sort: 'created'
 			})
 	}));
 
 	$effect(() => {
-		console.log('Project data:', queryProject.data);
-		console.log('Todos data:', queryTodos.data);
+		for (const todo of queryTodos.data ?? []) {
+			pocketbase.collection('todos').subscribe(todo.id, function (e) {
+				console.log('Todo updated:', e);
+				queryTodos.refetch();
+			});
+		}
 	});
 
 	async function createTodo() {
